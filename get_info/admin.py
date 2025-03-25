@@ -1,19 +1,15 @@
 from django.contrib import admin
 
-# Register your models here.
 from .models import *
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display=('title','created_at','completed')
 
-#At finally modify the admin panel
-# admin.site.register(Task,TaskAdmin)
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display=('user_id','user_name','role')
 
-#NOTE: if the model already registered in admin , if you try to register it again it makes error.
-"""
-Here you modify the admin page for easy visualization.
-                                                     |---|->model name(table)
-to get the admin page: localhost:3000/admin/get_info/task  # everything should be in small letter.
-                                           |--------|->app name
-"""
+@admin.register(Activity)
+class ActivityAdmin(admin.ModelAdmin):
+    list_display=('task_id','task_name','task_des','assin_to','status','created_by')

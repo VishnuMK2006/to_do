@@ -27,3 +27,25 @@ def complete_task(req):
         row.save()
     return redirect('todo_list')
 
+##admin user list code
+def admin_user_list(request):
+    task_list=Activity.objects.all()
+    user_list=User.objects.filter(role='user')
+    return render(request,'get_info/task_assign.html', {'user_list':user_list,'task_list':task_list})
+
+def assign_task(request):
+    if request.method == 'POST':
+        t_title=request.POST.get('task_name')
+        t_des=request.POST.get('task_des')
+        t_assign_to = request.POST.get('assin_to')
+        t_assign_by = request.POST.get('admin_id')
+        user_instance = User.objects.get(user_id=t_assign_to)#get the object first based on the id tassign the obj to the foreginkey variable
+        Activity.objects.create(
+            task_name=t_title,
+            task_des=t_des,
+            assin_to=user_instance,
+            created_by=t_assign_by,
+        )
+    return redirect('admin_user_list')
+
+   
