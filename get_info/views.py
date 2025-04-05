@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import *
-
+from django.contrib import messages 
 def todo_list(request):
     tasks = Task.objects.all()  # Fetch all tasks
     return render(request, 'get_info/todo.html', {'tasks': tasks}) #{'tasks': tasks},here LHS 'tasks'->act as an list have the all tasks details fetched.
@@ -47,5 +47,41 @@ def assign_task(request):
             created_by=t_assign_by,
         )
     return redirect('admin_user_list')
+
+
+## sign up details to insert
+def signup_area(request):
+    if request.method == 'POST':
+        username=request.POST.get('username')
+        password=request.POST.get('password')
+        role=request.POST.get('role')
+        if User.objects.filter(user_name=username).exists():
+            messages.error(request, "User with these credentials already exists! Try a different username.")
+        else:
+            User.objects.create(
+                user_name=username,
+                password=password,
+                role=role
+            )
+            messages.success(request,'user Created Successfully')
+            return redirect('login_area')
+    return render(request,'get_info/signup.html')
+
+##login details checkup
+def login_area(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = User.objects.filter(user_name=username, password=password).first()
+        if user:
+            messages.success(request, f'Welcome, {username}!')
+            return redirect('login_area')  # or redirect to dashboard
+        else:
+            messages.error(request, 'Invalid username or password.')
+    return render(request,'get_info/login.html')
+
+
+
 
    
