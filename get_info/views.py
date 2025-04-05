@@ -22,10 +22,14 @@ def remove_task(request):
 def complete_task(req):
     if req.method == 'POST':
         title = req.POST.get('cmptitle')
-        row=Task.objects.get(title=title)#get the Entire row related to this title
-        row.completed= True
-        row.save()
+        try:
+            row = Task.objects.get(title=title)
+            row.completed = True
+            row.save()
+        except Task.DoesNotExist:
+            pass  # Or handle it gracefully
     return redirect('todo_list')
+
 
 ##admin user list code
 def admin_user_list(request):
@@ -48,4 +52,11 @@ def assign_task(request):
         )
     return redirect('admin_user_list')
 
-   
+##user - tasks assigned to user
+def user_task_detail(request, user_id):
+    user = User.objects.get(pk=user_id)
+    tasks = Activity.objects.filter(assin_to=user)
+    return render(request, 'get_info/user_task_detail.html', {
+        'selected_user': user,
+        'tasks': tasks
+    })

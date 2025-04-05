@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-xl font-bold mb-4">Tasks for: {{ selected_user.user_name }}</h2>
+
+{% if tasks %}
+    <ul class="space-y-4">
+        {% for task in tasks %}
+            <li class="border p-4 rounded shadow-sm bg-white">
+                <h3 class="font-semibold">{{ task.task_name }}</h3>
+                <p>{{ task.task_des }}</p>
+                <p>Created by: {{ task.created_by }}</p>
+                <p>Status:
+                    {% if task.status %}
+                        ✅ Completed
+                    {% else %}
+                        ⏳ Pending
+                    {% endif %}
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tasks assigned to this user.</p>
+{% endif %}
+{% endblock %}
