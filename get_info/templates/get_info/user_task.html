@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ user.user_name }}'s Tasks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            background: white;
+            border-collapse: collapse;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h2>Tasks Assigned to {{ user.user_name }}</h2>
+    <table>
+        <tr>
+            <th>Task ID</th>
+            <th>Task Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Assigned By</th>
+        </tr>
+        {% for t in task %}
+        <tr>
+            <td>{{ t.task_id }}</td>
+            <td>{{ t.task_name }}</td>
+            <td>{{ t.task_des }}</td>
+            <td>{{ t.status|yesno:"Completed,Pending" }} </td>
+            <td>{{ t.created_by }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align:center;">No tasks assigned.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

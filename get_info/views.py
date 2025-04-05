@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from .models import *
 from django.contrib import messages 
 def todo_list(request):
@@ -28,25 +28,28 @@ def complete_task(req):
     return redirect('todo_list')
 
 ##admin user list code
-def admin_user_list(request):
-    task_list=Activity.objects.all()
+def admin_user_list(request,user_id):
+    user = get_object_or_404(User, user_id=user_id)
+    #task_list=Activity.objects.all()
+    task_list = Activity.objects.filter(created_by=user)
     user_list=User.objects.filter(role='user')
-    return render(request,'get_info/task_assign.html', {'user_list':user_list,'task_list':task_list})
+    return render(request,'get_info/task_assign.html', {'user_list':user_list,'task_list':task_list,'admin': user})
 
-def assign_task(request):
+def assign_task(request,user_id):
+    user = get_object_or_404(User, user_id=user_id)
     if request.method == 'POST':
         t_title=request.POST.get('task_name')
         t_des=request.POST.get('task_des')
         t_assign_to = request.POST.get('assin_to')
-        t_assign_by = request.POST.get('admin_id')
+        #t_assign_by = request.POST.get('admin_id')
         user_instance = User.objects.get(user_id=t_assign_to)#get the object first based on the id tassign the obj to the foreginkey variable
         Activity.objects.create(
             task_name=t_title,
             task_des=t_des,
             assin_to=user_instance,
-            created_by=t_assign_by,
+            created_by=user,
         )
-    return redirect('admin_user_list')
+    return redirect('admin_user_list', user_id=user_id)
 
 
 ## sign up details to insert
@@ -72,15 +75,24 @@ def login_area(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
         user = User.objects.filter(user_name=username, password=password).first()
         if user:
             messages.success(request, f'Welcome, {username}!')
-            return redirect('login_area')  # or redirect to dashboard
+            current_user= User.objects.get(user_name=username)
+            role=current_user.role
+            if role == 'admin' or role== 'Admin':
+                return redirect('admin_user_list', user_id=user.user_id)
+            else:
+                return redirect('task_assign', user_id=user.user_id)
         else:
             messages.error(request, 'Invalid username or password.')
-    return render(request,'get_info/login.html')
 
+    return render(request, 'get_info/login.html')
+
+def task_assign(request, user_id):
+    user = get_object_or_404(User, user_id=user_id)
+    task_list = Activity.objects.filter(assin_to=user_id)
+    return render(request, 'get_info/user_task.html', {'user': user,'task':task_list})
 
 
 
