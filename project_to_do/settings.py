@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'get_info'
+    'get_info',
 ]
 
 MIDDLEWARE = [
@@ -77,9 +77,9 @@ WSGI_APPLICATION = 'project_to_do.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'to_do_admin',
+        'NAME': 'todo',
         'USER':'root',
-        'PASSWORD':'root',
+        'PASSWORD':'admin',
         'HOST': 'localhost',
         'PORT':'3306',
     }
