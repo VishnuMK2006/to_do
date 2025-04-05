@@ -6,4 +6,5 @@ urlpatterns=[
     path('signup/',views.signup_area,name='signup_area'),
     path('login/',views.login_area,name='login_area'),
     path('task-assign/<int:user_id>/', views.task_assign, name='task_assign'),
+    path('task-complete/<int:user_id>/', views.mark_completed, name='mark_completed'),
 ]

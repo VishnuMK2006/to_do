@@ -44,18 +44,27 @@
             <th>Assigned By</th>
         </tr>
         {% for t in task %}
+    {% if not t.status %}
         <tr>
             <td>{{ t.task_id }}</td>
             <td>{{ t.task_name }}</td>
             <td>{{ t.task_des }}</td>
-            <td>{{ t.status|yesno:"Completed,Pending" }} </td>
+            <td>
+                <form method="POST" action="{% url 'mark_completed' user.user_id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_id" value="{{ t.task_id }}">
+                    <button type="submit" class="btn btn-sm btn-success">Complete</button>
+                </form>
+            </td>
             <td>{{ t.created_by }}</td>
         </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5" style="text-align:center;">No tasks assigned.</td>
-        </tr>
-        {% endfor %}
+    {% endif %}
+{% empty %}
+<tr>
+    <td colspan="5" style="text-align:center;">No tasks assigned.</td>
+</tr>
+{% endfor %}
+
     </table>
 </body>
 </html>

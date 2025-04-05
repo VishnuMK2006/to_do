@@ -95,5 +95,17 @@ def task_assign(request, user_id):
     return render(request, 'get_info/user_task.html', {'user': user,'task':task_list})
 
 
+### for status button
+
+def mark_completed(request, user_id):
+    if request.method == 'POST':
+        task_id = request.POST.get('task_id')
+        task = get_object_or_404(Activity, task_id=task_id, assin_to__user_id=user_id)
+        if not task.status:
+            task.status = True
+            task.save()
+    return redirect('task_assign', user_id=user_id)
+
+
 
    
