@@ -9,4 +9,4 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
-    list_display=('task_id','task_name','task_des','assin_to','status','created_by')
+    list_display = ('task_name', 'status', 'urgency', 'assin_to', 'due_at', 'created_by_user') 

@@ -36,9 +36,16 @@
                         <select name="urgency" class="w-full border border-gray-300 rounded-lg p-2">
                             <option value="urgent">Urgent</option>
                             <option value="standard">Standard</option>
-                            <option value="dolater">Do Later</option>
+                            <option value="doLater">Do Later</option>
                         </select>
                     </div>
+
+                    <div>
+                        <label class="block font-semibold">Due Date</label>
+                        <input type="date" name="due_date" class="w-full border border-gray-300 rounded-lg p-2" required>
+                    </div>
+                    
+
 
                     <div>
                         <label class="block font-semibold">Assign To</label>
@@ -52,7 +59,7 @@
 
                     <div>
                         <label class="block font-semibold">Upload File</label>
-                        <input type="file" name="filename" class="w-full">
+                        <input type="file" name="files" class="w-full">
                     </div>
 
                     <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Assign Task</button>
@@ -72,6 +79,8 @@
                             <th class="border px-4 py-2">Status</th>
                             <th class="border px-4 py-2">Description</th>
                             <th class="border px-4 py-2">Created By</th>
+                            <th class="border px-4 py-2">Due Date</th>
+                            <th class="border px-4 py-2">Completed At</th>
                             <th class="border px-4 py-2">Urgency</th>
                             <th class="border px-4 py-2">Files</th>
                         </tr>
@@ -90,7 +99,15 @@
                                 {% endif %}
                             </td>
                             <td class="border px-4 py-2">{{ task.task_des }}</td>
-                            <td class="border px-4 py-2">{{ task.created_by }}</td>
+                            <td class="border px-4 py-2">{{ task.created_by_user }}</td>
+                            <td class="border px-4 py-2">{{ task.due_at|date:"Y-m-d H:i" }}</td>
+                            <td class="border px-4 py-2">
+                                {% if task.completed_at %}
+                                    {{ task.completed_at|date:"Y-m-d H:i" }}
+                                {% else %}
+                                    <span class="text-gray-400 italic">Not completed</span>
+                                {% endif %}
+                            </td>
                             <td class="border px-4 py-2">
                                 {% if task.urgency == "urgent" %}
                                     <span class="text-red-600 font-semibold">Urgent</span>
@@ -107,6 +124,7 @@
                             <td colspan="8" class="text-center py-4">No tasks assigned</td>
                         </tr>
                         {% endfor %}
+                        
                     </tbody>
                 </table>
             </div>

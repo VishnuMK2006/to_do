@@ -6,73 +6,166 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 pt-10 min-h-screen">
+<body class="bg-gray-100 pt-10 min-h-screen font-sans">
     {% include "./navbar.html" %}
 
-    <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow-md">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">
             Tasks Assigned to {{ user.user_name }}
         </h2>
 
-        <div class="overflow-x-auto">
-            <table class="w-full table-auto border border-gray-300 rounded-lg text-sm">
-                <thead class="bg-blue-900 text-white">
-                    <tr>
-                        <th class="px-4 py-3 text-left">Task ID</th>
-                        <th class="px-4 py-3 text-left">Task Name</th>
-                        <th class="px-4 py-3 text-left">Description</th>
-                        <th class="px-4 py-3 text-left">Status</th>
-                        <th class="px-4 py-3 text-left">Assigned By</th>
-                        <th class="px-4 py-3 text-left">Urgency</th>
-                        <th class="px-4 py-3 text-left">Related Files</th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-700">
-                    {% for t in task %}
-                    {% if not t.status %}
-                    <tr class="border-b hover:bg-gray-100">
-                        <td class="px-4 py-2">{{ t.task_id }}</td>
-                        <td class="px-4 py-2">{{ t.task_name }}</td>
-                        <td class="px-4 py-2">{{ t.task_des }}</td>
-                        <td class="px-4 py-2">
-                            <form method="POST" action="{% url 'mark_completed' user.user_id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="task_id" value="{{ t.task_id }}">
-                                <button type="submit"
-                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs">
-                                    Mark as Complete
-                                </button>
-                            </form>
-                        </td>
-                        <td class="px-4 py-2">{{ t.created_by }}</td>
-                        <td class="px-4 py-2">
-                            {% if t.urgency == "urgent" %}
-                                <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Urgent</span>
-                            {% elif t.urgency == "doLater" %}
-                                <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Do Later</span>
-                            {% else %}
-                                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Standard</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-4 py-2">
-                            {% if t.files %}
-                                <a href="{{ t.files.url }}" target="_blank" download class="text-blue-600 underline">
-                                    {{ t.files.name|cut:"task_files/" }}
-                                </a>
-                            {% else %}
-                                <span class="text-gray-400 italic">No file</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endif %}
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center py-6 text-gray-500">No tasks assigned.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- Toggle Buttons -->
+        <div class="flex justify-center gap-4 mb-8">
+            <button onclick="showSection('pending')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200">
+                Pending Tasks
+            </button>
+            <button onclick="showSection('completed')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all duration-200">
+                Completed Tasks
+            </button>
         </div>
+
+        <!-- Pending Section -->
+        <section id="pendingSection">
+            <h3 class="text-2xl font-semibold text-blue-800 mb-4">Pending Tasks</h3>
+            <div class="overflow-x-auto mb-10">
+                <table class="w-full table-auto border border-gray-300 text-sm rounded-lg">
+                    <thead class="bg-gray-600 text-white">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Task ID</th>
+                            <th class="px-4 py-3 text-left">Task Name</th>
+                            <th class="px-4 py-3 text-left">Description</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-left">Assigned By</th>
+                            <th class="px-4 py-3 text-left">Urgency</th>
+                            <th class="px-4 py-3 text-left">Related Files</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700">
+                        {% for t in task %}
+                            {% if not t.status %}
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-2">{{ t.task_id }}</td>
+                                    <td class="px-4 py-2">{{ t.task_name }}</td>
+                                    <td class="px-4 py-2">{{ t.task_des }}</td>
+                                    <td class="px-4 py-2">
+                                        <form method="POST" action="{% url 'mark_completed' user.user_id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="task_id" value="{{ t.task_id }}">
+                                            <select name="status" onchange="this.form.submit()" class="border rounded-md px-2 py-1 text-sm bg-white">
+                                                <option value="incomplete" selected>Pending</option>
+                                                <option value="complete">Completed</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td class="px-4 py-2">{{ t.created_by_user }}</td>
+                                    <td class="px-4 py-2">
+                                        {% if t.urgency == "urgent" %}
+                                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Urgent</span>
+                                        {% elif t.urgency == "doLater" %}
+                                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Do Later</span>
+                                        {% else %}
+                                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Standard</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        {% if t.files %}
+                                            <a href="{{ t.files.url }}" target="_blank" download class="text-blue-600 underline">
+                                                {{ t.files.name|cut:"task_files/" }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-gray-400 italic">No file</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-6 text-gray-500">No pending tasks.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Completed Section -->
+        <section id="completedSection" class="hidden">
+            <h3 class="text-2xl font-semibold text-green-800 mb-4">Completed Tasks</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full table-auto border border-gray-300 text-sm rounded-lg">
+                    <thead class="bg-gray-600 text-white">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Task ID</th>
+                            <th class="px-4 py-3 text-left">Task Name</th>
+                            <th class="px-4 py-3 text-left">Description</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-left">Assigned By</th>
+                            <th class="px-4 py-3 text-left">Urgency</th>
+                            <th class="px-4 py-3 text-left">Related Files</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700">
+                        {% for t in task %}
+                            {% if t.status %}
+                                <tr class="border-b bg-gray-100 hover:bg-gray-200 text-green-800 font-medium">
+                                    <td class="px-4 py-2">{{ t.task_id }}</td>
+                                    <td class="px-4 py-2">{{ t.task_name }}</td>
+                                    <td class="px-4 py-2">{{ t.task_des }}</td>
+                                    <td class="px-4 py-2">
+                                        <form method="POST" action="{% url 'mark_completed' user.user_id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="task_id" value="{{ t.task_id }}">
+                                            <select name="status" onchange="this.form.submit()" class="border rounded-md px-2 py-1 text-sm bg-white">
+                                                <option value="incomplete">Pending</option>
+                                                <option value="complete" selected>Completed</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td class="px-4 py-2">{{ t.created_by_user }}</td>
+                                    <td class="px-4 py-2">
+                                        {% if t.urgency == "urgent" %}
+                                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Urgent</span>
+                                        {% elif t.urgency == "doLater" %}
+                                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Do Later</span>
+                                        {% else %}
+                                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Standard</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        {% if t.files %}
+                                            <a href="{{ t.files.url }}" target="_blank" download class="text-blue-600 underline">
+                                                {{ t.files.name|cut:"task_files/" }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-gray-400 italic">No file</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-6 text-gray-500">No completed tasks.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
+
+    <script>
+        function showSection(section) {
+            const pending = document.getElementById("pendingSection");
+            const completed = document.getElementById("completedSection");
+
+            if (section === 'pending') {
+                pending.classList.remove("hidden");
+                completed.classList.add("hidden");
+            } else {
+                pending.classList.add("hidden");
+                completed.classList.remove("hidden");
+            }
+        }
+    </script>
 </body>
 </html>
