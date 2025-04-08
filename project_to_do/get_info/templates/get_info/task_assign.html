@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Task Assignment</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Task Assignment</h2>
+
+        <!-- Task Assignment Form -->
+        <form method="POST" action="{% url 'assign_task' admin.user_id %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="task_name">Task Name</label>
+                <input type="text" class="form-control" id="task_name" name="task_name" required>
+                <input type="text" class="form-control" id="admin_id" name="admin_id" hidden value="#####"> #######
+            </div>
+
+            <div class="form-group">
+                <label for="task_des">Task Description</label>
+                <textarea class="form-control" id="task_des" name="task_des" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="assin_to">Assign To</label>
+                <select class="form-control" id="assin_to" name="assin_to" required>
+                    <option value="" disabled selected>Select User</option>
+                    {% for user in user_list %}
+                    <option value="{{ user.user_id }}">{{ user.user_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Assign Task</button>
+        </form>
+
+        <!-- Task List Table -->
+        <div class="mt-5">
+            <h4 class="text-center">Assigned Tasks</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Task Name</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Created By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in task_list %}
+                        <tr>
+                            <td>{{ task.task_id }}</td>
+                            <td>{{ task.task_name }}</td>
+                            <td>{{ task.assin_to.user_name}}</td>
+                            <td>
+                                {% if task.status %}
+                                <span class="badge badge-success">Completed</span>
+                                {% else %}
+                                <span class="badge badge-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{task.task_des}}</td>
+                            <td>{{ task.created_by }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No tasks assigned</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
