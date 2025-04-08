@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen pt-10 px-4">
+    {% include "./navbar.html" %}
+
+    <div class="max-w-5xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Task Manager</h2>
+
+        <div class="flex justify-center mb-6 space-x-4">
+            <button onclick="showTab('assign')" class="tab-button px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Assign Task</button>
+            <button onclick="showTab('view')" class="tab-button px-4 py-2 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400">View Tasks</button>
+            <button onclick="showTab('general')" class="tab-button px-4 py-2 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400">General Tasks</button>
+        </div>
+
+        <div id="assignTab" class="tab-content">
+            <form method="POST" action="{% url 'assign_task' admin.user_id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-semibold">Task Name</label>
+                        <input type="text" name="task_name" class="w-full border border-gray-300 rounded-lg p-2" required>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold">Task Description</label>
+                        <textarea name="task_des" rows="3" class="w-full border border-gray-300 rounded-lg p-2" required></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold">Urgency</label>
+                        <select name="urgency" class="w-full border border-gray-300 rounded-lg p-2">
+                            <option value="urgent">Urgent</option>
+                            <option value="standard">Standard</option>
+                            <option value="doLater">Do Later</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold">Due Date</label>
+                        <input type="date" name="due_date" class="w-full border border-gray-300 rounded-lg p-2" required>
+                    </div>
+                    
+
+
+                    <div>
+                        <label class="block font-semibold">Assign To</label>    
+                        <select name="assin_to" class="w-full border border-gray-300 rounded-lg p-2" >
+                            <option value="" disabled selected>Select User</option>
+                            <option value="general">General Task</option>
+                            {% for user in user_list %}
+                                <option value="{{ user.user_id }}">{{ user.user_name }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold">Upload File</label>
+                        <input type="file" name="files" class="w-full">
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Assign Task</button>
+                </div>
+            </form>
+        </div>
+
+
+
+        <div id="viewTab" class="tab-content hidden">
+            <h4 class="text-xl font-semibold text-center mb-4">Assigned Tasks</h4>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border text-sm">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <!-- <th class="border px-4 py-2">ID</th> -->
+                            <th class="border px-4 py-2">Task Name</th>
+                            <th class="border px-4 py-2">Assigned To</th>
+                            <th class="border px-4 py-2">Status</th>
+                            <th class="border px-4 py-2">Description</th>
+                            <th class="border px-4 py-2">Created By</th>
+                            <th class="border px-4 py-2">Due Date</th>
+                            <th class="border px-4 py-2">Completed At</th>
+                            <th class="border px-4 py-2">Urgency</th>
+                            <th class="border px-4 py-2">Files</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in task_list %}
+                        <tr class="hover:bg-gray-100">
+                            <!-- <td class="border px-4 py-2">{{ task.task_id }}</td> -->
+                            <td class="border px-4 py-2">{{ task.task_name }}</td>
+                            <td class="border px-4 py-2">{{ task.assin_to.user_name }}</td>
+                            <td class="border px-4 py-2">
+                                {% if task.status %}
+                                    <span class="bg-green-200 text-green-800 px-2 py-1 rounded">Completed</span>
+                                {% else %}
+                                    <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="border px-4 py-2">{{ task.task_des }}</td>
+                            <td class="border px-4 py-2">{{ task.created_by_user }}</td>
+                            <td class="border px-4 py-2">{{ task.due_at|date:"Y-m-d H:i" }}</td>
+                            <td class="border px-4 py-2">
+                                {% if task.completed_at %}
+                                    {{ task.completed_at|date:"Y-m-d H:i" }}
+                                {% else %}
+                                    <span class="text-gray-400 italic">Not completed</span>
+                                {% endif %}
+                            </td>
+                            <td class="border px-4 py-2">
+                                {% if task.urgency == "urgent" %}
+                                    <span class="text-red-600 font-semibold">Urgent</span>
+                                {% elif task.urgency == "doLater" %}
+                                    <span class="text-green-600 font-semibold">Do Later</span>
+                                {% else %}
+                                    <span class="text-yellow-600 font-semibold">Standard</span>
+                                {% endif %}
+                            </td>
+                            <td class="border px-4 py-2">{{ task.files }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">No tasks assigned</td>
+                        </tr>
+                        {% endfor %}
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+        <div id="generalTab" class="tab-content hidden">
+            <h4 class="text-xl font-semibold text-center mb-4">General Tasks</h4>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border text-sm">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border px-4 py-2">ID</th>
+                            <th class="border px-4 py-2">Task Name</th>
+                            <th class="border px-4 py-2">Description</th>
+                            <th class="border px-4 py-2">Created By</th>
+                            <th class="border px-4 py-2">Due Date</th>
+                            <th class="border px-4 py-2">Urgency</th>
+                            <th class="border px-4 py-2">Files</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in general_list %}
+                        <tr class="hover:bg-gray-100">
+                            <td class="border px-4 py-2">{{ task.task_id }}</td>
+                            <td class="border px-4 py-2">{{ task.task_name }}</td>
+                            <td class="border px-4 py-2">{{ task.task_des }}</td>
+                            <td class="border px-4 py-2">{{ task.created_by_user }}</td>
+                            <td class="border px-4 py-2">{{ task.due_at|date:"Y-m-d H:i" }}</td>
+                            <td class="border px-4 py-2">
+                                {% if task.urgency == "urgent" %}
+                                    <span class="text-red-600 font-semibold">Urgent</span>
+                                {% elif task.urgency == "doLater" %}
+                                    <span class="text-green-600 font-semibold">Do Later</span>
+                                {% else %}
+                                    <span class="text-yellow-600 font-semibold">Standard</span>
+                                {% endif %}
+                            </td>
+                            <td class="border px-4 py-2">{{ task.files }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No general tasks found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+
+
+    
+    <script>
+        function showTab(tabName) {
+            const tabs = ['assignTab', 'viewTab', 'generalTab'];
+            tabs.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+    
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-300', 'text-gray-700');
+            });
+    
+            const activeBtn = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
+            activeBtn.classList.add('bg-blue-600', 'text-white');
+            activeBtn.classList.remove('bg-gray-300', 'text-gray-700');
+        }
+    
+        showTab('assign');
+    </script>    
+</body>
+</html>
