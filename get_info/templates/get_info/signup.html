@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Form</title>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    {% include "./navbar.html" %}
+
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-700">Signup</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 px-4 py-2 rounded-md text-sm 
+                    {% if message.tags == 'success' %}
+                        bg-green-100 text-green-800
+                    {% elif message.tags == 'error' %}
+                        bg-red-100 text-red-800
+                    {% else %}
+                        bg-gray-100 text-gray-800
+                    {% endif %}
+                ">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form action="{% url 'signup_area' %}" method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-600">Username</label>
+                <input type="text" id="username" name="username" required 
+                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring focus:border-blue-400">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
+                <input type="password" id="password" name="password" required 
+                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring focus:border-blue-400">
+            </div>
+
+            <div class="text-right text-sm">
+                <a href="#" class="text-blue-500 hover:underline">Forgot Password?</a>
+            </div>
+
+
+            <button type="submit" 
+                    class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">
+                Sign Up
+            </button>
+        </form>
+    </div>
+</body>
+</html>
