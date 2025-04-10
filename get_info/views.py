@@ -3,7 +3,8 @@ from .models import *
 from django.contrib import messages 
 from django.utils import timezone
 from datetime import datetime
-
+from django.core.mail import send_mail
+from django.conf import settings
 def add_task(request):
     if request.method == 'POST':
         title = request.POST.get('title')  
@@ -69,6 +70,18 @@ def assign_task(request, user_id):
                 files=files,
                 due_at=due_date
             )
+            recipient_email = user_instance.email  
+            subject = f"Task Assigned: {t_title}"
+            message = f"The admin has assigned the task '{t_title}' to you.\n\nDescription: {t_des}"
+
+            if recipient_email:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [recipient_email],
+                    fail_silently=False
+                )
 
     return redirect('admin_user_list', user_id=user_id)
 
@@ -78,12 +91,14 @@ def signup_area(request):
     if request.method == 'POST':
         username=request.POST.get('username')
         password=request.POST.get('password')
+        email = request.POST.get('email')
         if User.objects.filter(user_name=username).exists():
             messages.error(request, "User with these credentials already exists! Try a different username.")
         else:
             User.objects.create(
                 user_name=username,
                 password=password,
+                email=email
             )
             messages.success(request,'user Created Successfully')
             return redirect('login_area')

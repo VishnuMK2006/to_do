@@ -10,6 +10,7 @@ class User(models.Model):
     user_name = models.CharField(unique=True, max_length=40)
     password = models.CharField(max_length=40)
     role = models.CharField(choices=USER_ROLE, max_length=40, default='user')
+    email = models.EmailField(unique=True)
 
 
 class Activity(models.Model):
@@ -21,7 +22,7 @@ class Activity(models.Model):
     )
     task_id = models.AutoField(primary_key=True)
     task_name = models.CharField(max_length=40)
-    task_des = models.CharField(max_length=400)
+    task_des = models.TextField()
     assin_to = models.ForeignKey(User, on_delete=models.CASCADE,blank=True,null=True)
     status = models.BooleanField(default=False)
     created_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_tasks")

@@ -5,7 +5,7 @@ from .models import *
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display=('user_id','user_name','role')
+    list_display=('user_id','user_name','role','email')
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
